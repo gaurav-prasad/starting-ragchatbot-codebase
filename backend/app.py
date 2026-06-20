@@ -87,7 +87,26 @@ async def get_course_stats():
 
 @app.on_event("startup")
 async def startup_event():
-    """Load initial documents on startup"""
+    """Run test suite then load initial documents on startup"""
+    import subprocess
+    import sys
+
+    print("\n" + "=" * 60)
+    print("Running test suite...")
+    print("=" * 60)
+    result = subprocess.run(
+        [sys.executable, "-m", "pytest", "tests/", "-v", "--tb=short", "--no-header"],
+        capture_output=True,
+        text=True,
+        cwd=os.path.dirname(os.path.abspath(__file__)),
+    )
+    print(result.stdout)
+    if result.returncode != 0:
+        print("WARNING: Some tests failed!")
+        if result.stderr:
+            print(result.stderr)
+    print("=" * 60 + "\n")
+
     docs_path = "../docs"
     if os.path.exists(docs_path):
         print("Loading initial documents...")
